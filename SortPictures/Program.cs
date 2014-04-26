@@ -86,7 +86,7 @@ namespace SortPictures
                         }
                         else
                         {
-                            if (fi.Extension.Contains("jp")) // Get exif infos for jpg files
+							if (fi.Extension.ToLower().Contains("jp")) // Get exif infos for jpg files
                             {
                                 fileDate = ExifExtractor.GetImageShootingDate(fi.FullName);
                             }
