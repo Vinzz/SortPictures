@@ -47,7 +47,6 @@ namespace SortPictures
             }
         }
 
-        private static Regex regAndroidPicDates = new Regex(@"\d{8}_\d{6}");
 
         static void Main(string[] args)
         {
@@ -72,25 +71,7 @@ namespace SortPictures
                         if (++count % 10 == 0)
                             Console.WriteLine(string.Format("Files processed {0}/{1}", count, srcPics.Count()));
 
-                        DateTime fileDate = fi.CreationTime;
-
-                        // edge case for android shooted file
-                        string fileName = Path.GetFileNameWithoutExtension(fi.FullName);
-                        if (regAndroidPicDates.IsMatch(fileName))
-                        {
-                            int year = int.Parse(fileName.Substring(0, 4));
-                            int month = int.Parse(fileName.Substring(4, 2));
-                            int day = int.Parse(fileName.Substring(6, 2));
-
-                            fileDate = new DateTime(year, month, day);
-                        }
-                        else
-                        {
-							if (fi.Extension.ToLower().Contains("jp")) // Get exif infos for jpg files
-                            {
-                                fileDate = ExifExtractor.GetImageShootingDate(fi.FullName);
-                            }
-                        }
+                        DateTime fileDate = fi.LastWriteTime;
 
                         string yearPath = Path.Combine(outDir, fileDate.Year.ToString());
                         string monthPath = Path.Combine(yearPath, fileDate.Month.ToString("00") + " - " + fileDate.ToString("MMMM"));
