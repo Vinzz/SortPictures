@@ -52,49 +52,57 @@ namespace SortPictures
         {
             try
             {
-                string input = args[0];
-                string outDir = args[1];
-                DirectoryInfo inputDir = new DirectoryInfo(input);
-                string extensions = SortPictures.Properties.SortPictures.Default.ExtensionsToSort;
-
-                Console.WriteLine("inputDir: " + input);
-                Console.WriteLine("OutDir: " + outDir);
-                Console.WriteLine("Files considered: " + extensions);
-
-                IEnumerable<FileInfo> srcPics = inputDir.RecursiveGetFiles();
-
-                int count = 0;
-                foreach (FileInfo fi in srcPics)
+                if (args.Length == 2)
                 {
-                    if (extensions.Contains(fi.Extension.ToLower()))
+                    string input = args[0];
+                    string outDir = args[1];
+                    DirectoryInfo inputDir = new DirectoryInfo(input);
+                    string extensions = SortPictures.Properties.SortPictures.Default.ExtensionsToSort;
+
+                    Console.WriteLine("inputDir: " + input);
+                    Console.WriteLine("OutDir: " + outDir);
+                    Console.WriteLine("Files considered: " + extensions);
+
+                    IEnumerable<FileInfo> srcPics = inputDir.RecursiveGetFiles();
+
+                    int count = 0;
+                    foreach (FileInfo fi in srcPics)
                     {
-                        if (++count % 10 == 0)
-                            Console.WriteLine(string.Format("Files processed {0}/{1}", count, srcPics.Count()));
-
-                        DateTime fileDate = fi.LastWriteTime;
-
-                        string yearPath = Path.Combine(outDir, fileDate.Year.ToString());
-                        string monthPath = Path.Combine(yearPath, fileDate.Month.ToString("00") + " - " + fileDate.ToString("MMMM"));
-                        string destPath = Path.Combine(monthPath, fi.Name.TrimStart('_'));
-
-                        if (!Directory.Exists(yearPath))
-                            Directory.CreateDirectory(yearPath);
-                        if (!Directory.Exists(monthPath))
-                            Directory.CreateDirectory(monthPath);
-
-                        if (!File.Exists(destPath))
+                        if (extensions.Contains(fi.Extension.ToLower()))
                         {
-                            fi.MoveTo(destPath);
-                        }
-                        else
-                        {
-                            // Duplicated file
-                            fi.Delete();
+                            if (++count % 10 == 0)
+                                Console.WriteLine(string.Format("Files processed {0}/{1}", count, srcPics.Count()));
+
+                            DateTime fileDate = fi.LastWriteTime;
+
+                            string yearPath = Path.Combine(outDir, fileDate.Year.ToString());
+                            string monthPath = Path.Combine(yearPath, fileDate.Month.ToString("00") + " - " + fileDate.ToString("MMMM"));
+                            string destPath = Path.Combine(monthPath, fi.Name.TrimStart('_'));
+
+                            if (!Directory.Exists(yearPath))
+                                Directory.CreateDirectory(yearPath);
+                            if (!Directory.Exists(monthPath))
+                                Directory.CreateDirectory(monthPath);
+
+                            if (!File.Exists(destPath))
+                            {
+                                fi.MoveTo(destPath);
+                            }
+                            else
+                            {
+                                // Duplicated file
+                                fi.Delete();
+                            }
                         }
                     }
+                    Console.WriteLine(string.Format("{0} files moved", count));
+                    Console.WriteLine("That's all folks");
                 }
-                Console.WriteLine(string.Format("{0} files moved", count));
-                Console.WriteLine("That's all folks");
+                else
+                {
+                    Console.WriteLine("Sorts pictures from a single directory (drop out of the camera) to a directory tree (MainPicDir / Year / Month).");
+                    Console.WriteLine("Sortpicture.exe <input directory> <output directory>");
+                }
             }
             catch (Exception ex)
             {
