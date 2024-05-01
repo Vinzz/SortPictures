@@ -26,7 +26,7 @@ namespace SortPictures
                     string[] allfiles = System.IO.Directory.GetFiles(input, "*.*", SearchOption.AllDirectories);
                    
 
-                    Regex regandroid = new Regex("\\d{8}_.*");
+                    Regex regandroid = new Regex("^\\d{8}_.*");
 
                     int count = 0;
                     foreach (string filename in allfiles)
