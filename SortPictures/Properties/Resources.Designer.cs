@@ -61,7 +61,7 @@ namespace SortPictures.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .jpg, .mov, .mp4, .avi, .m2ts, m4a.
+        ///   Looks up a localized string similar to .jpg, .mov, .mp4, .avi, .m2ts, .m4a, *.png.
         /// </summary>
         internal static string ExtensionsToSort {
             get {

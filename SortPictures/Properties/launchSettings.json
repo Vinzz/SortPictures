@@ -2,7 +2,7 @@
   "profiles": {
     "SortPictures": {
       "commandName": "Project",
-      "commandLineArgs": "\"C:\\Users\\lccb4232\\Desktop\" \"c:\\temp\\sort\""
+      "commandLineArgs": "\"C:\\temp\\sort\" \"C:\\temp\\sort\""
     }
   }
 }

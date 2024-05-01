@@ -1,53 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace SortPictures
 {
-    public static class Program
+    internal class Program
     {
-        static IEnumerable<FileInfo> RecursiveGetFiles(this DirectoryInfo input)
-        {
-            return DirDeployExplore(input);
-        }
-
-        static public Stack<FileInfo> DirDeployExplore(DirectoryInfo dSrcDir)
-        {
-            try
-            {
-                Stack<DirectoryInfo> stackDirs = new Stack<DirectoryInfo>();
-                Stack<FileInfo> stackPaths = new Stack<FileInfo>();
-
-                stackDirs.Push(dSrcDir);
-                while (stackDirs.Count > 0)
-                {
-                    DirectoryInfo currentDir = (DirectoryInfo)stackDirs.Pop();
-
-                    //Process .\files
-                    foreach (FileInfo fileInfo in currentDir.GetFiles())
-                    {
-                        stackPaths.Push(fileInfo);
-                    }
-
-                    //Process Subdirectories
-                    foreach (DirectoryInfo diNext in currentDir.GetDirectories())
-                        stackDirs.Push(diNext);
-                }
-
-                return stackPaths;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                Console.ReadKey();
-                return null;
-            }
-        }
-
-
         static void Main(string[] args)
         {
             try
@@ -63,29 +19,32 @@ namespace SortPictures
                     Console.WriteLine("OutDir: " + outDir);
                     Console.WriteLine("Files considered: " + extensions);
 
-                    IEnumerable<FileInfo> srcPics = inputDir.RecursiveGetFiles();
+
+
+                    string[] allfiles = Directory.GetFiles(input, "*.*", SearchOption.AllDirectories);
+                   
 
                     Regex regandroid = new Regex("\\d{8}_.*");
 
                     int count = 0;
-                    foreach (FileInfo fi in srcPics)
+                    foreach (string filename in allfiles)
                     {
+                        FileInfo fi = new FileInfo(filename);
                         if (extensions.Contains(fi.Extension.ToLower()))
                         {
                             if (++count % 10 == 0)
-                                Console.WriteLine(string.Format("Files processed {0}/{1}", count, srcPics.Count()));
+                                Console.WriteLine(string.Format("Files processed {0}/{1}", count, allfiles.Count()));
 
                             // Default date, LastWriteTime
                             DateTime fileDate = fi.LastWriteTime;
 
 
                             //20120612_124502.jpg
-
                             if (regandroid.IsMatch(fi.Name))
                             {
                                 int year = int.Parse(fi.Name.Substring(0, 4));
-                                int month = int.Parse(fi.Name.Substring(3, 2));
-                                int day = int.Parse(fi.Name.Substring(5, 2));
+                                int month = int.Parse(fi.Name.Substring(4, 2));
+                                int day = int.Parse(fi.Name.Substring(6, 2));
 
                                 fileDate = new DateTime(year, month, day);
                             }
@@ -105,8 +64,8 @@ namespace SortPictures
                             }
                             else
                             {
-                                // Duplicated file
-                                fi.Delete();
+                                // Duplicated file, do nothing
+                                Console.WriteLine(string.Format($"File {fi.FullName} exists at {destPath}"));
                             }
                         }
                     }
