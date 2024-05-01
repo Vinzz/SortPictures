@@ -1,4 +1,6 @@
 ﻿using System.Text.RegularExpressions;
+using MetadataExtractor;
+
 
 namespace SortPictures
 {
@@ -21,7 +23,7 @@ namespace SortPictures
 
 
 
-                    string[] allfiles = Directory.GetFiles(input, "*.*", SearchOption.AllDirectories);
+                    string[] allfiles = System.IO.Directory.GetFiles(input, "*.*", SearchOption.AllDirectories);
                    
 
                     Regex regandroid = new Regex("\\d{8}_.*");
@@ -39,7 +41,7 @@ namespace SortPictures
                             DateTime fileDate = fi.LastWriteTime;
 
 
-                            //20120612_124502.jpg
+                            //20120612_124502.jpg Android naming scheme
                             if (regandroid.IsMatch(fi.Name))
                             {
                                 int year = int.Parse(fi.Name.Substring(0, 4));
@@ -48,15 +50,25 @@ namespace SortPictures
 
                                 fileDate = new DateTime(year, month, day);
                             }
-
+                            else //Try Exif Data
+                            { 
+                                if(fi.Extension == ".jpg" || fi.Extension == ".png")
+                                {
+                                    DateTime ans = GetDate(fi);
+                                    if(ans != DateTime.MinValue)
+                                    {
+                                        fileDate = ans;
+                                    }
+                                }
+                            }
                             string yearPath = Path.Combine(outDir, fileDate.Year.ToString());
                             string monthPath = Path.Combine(yearPath, fileDate.Month.ToString("00") + " - " + fileDate.ToString("MMMM"));
                             string destPath = Path.Combine(monthPath, fi.Name.TrimStart('_'));
 
-                            if (!Directory.Exists(yearPath))
-                                Directory.CreateDirectory(yearPath);
-                            if (!Directory.Exists(monthPath))
-                                Directory.CreateDirectory(monthPath);
+                            if (!System.IO.Directory.Exists(yearPath))
+                                System.IO.Directory.CreateDirectory(yearPath);
+                            if (!System.IO.Directory.Exists(monthPath))
+                                System.IO.Directory.CreateDirectory(monthPath);
 
                             if (!File.Exists(destPath))
                             {
@@ -65,11 +77,12 @@ namespace SortPictures
                             else
                             {
                                 // Duplicated file, do nothing
-                                Console.WriteLine(string.Format($"File {fi.FullName} exists at {destPath}"));
+                                if(fi.FullName != destPath)
+                                    Console.WriteLine(string.Format($"File {fi.FullName} exists at {destPath}"));
                             }
                         }
                     }
-                    Console.WriteLine(string.Format("{0} files moved", count));
+                    Console.WriteLine(string.Format("{0} files considered", count));
                     Console.WriteLine("That's all folks");
                 }
                 else
@@ -87,5 +100,28 @@ namespace SortPictures
                 Console.ReadLine();
             }
         }
+
+        public static DateTime GetDate(FileInfo f)
+        {
+            var directories = ImageMetadataReader.ReadMetadata(f.FullName);
+
+            foreach (var directory in directories)
+                foreach (var tag in directory.Tags)
+                {
+                    if(tag.Name.Contains("Date/Time"))
+                    {
+                        var exifdate = tag.Description;
+
+                        int year = int.Parse(exifdate.Substring(0, 4));
+                        int month = int.Parse(exifdate.Substring(5, 2));
+                        int day = int.Parse(exifdate.Substring(8, 2));
+
+                        return new DateTime(year, month, day);
+                    }
+                }
+
+            return DateTime.MinValue;
+        }
+
     }
 }
