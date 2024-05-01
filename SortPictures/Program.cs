@@ -57,13 +57,15 @@ namespace SortPictures
                     string input = args[0];
                     string outDir = args[1];
                     DirectoryInfo inputDir = new DirectoryInfo(input);
-                    string extensions = SortPictures.Properties.SortPictures.Default.ExtensionsToSort;
+                    string extensions = Properties.Resources.ExtensionsToSort;
 
                     Console.WriteLine("inputDir: " + input);
                     Console.WriteLine("OutDir: " + outDir);
                     Console.WriteLine("Files considered: " + extensions);
 
                     IEnumerable<FileInfo> srcPics = inputDir.RecursiveGetFiles();
+
+                    Regex regandroid = new Regex("\\d{8}_.*");
 
                     int count = 0;
                     foreach (FileInfo fi in srcPics)
@@ -73,7 +75,20 @@ namespace SortPictures
                             if (++count % 10 == 0)
                                 Console.WriteLine(string.Format("Files processed {0}/{1}", count, srcPics.Count()));
 
+                            // Default date, LastWriteTime
                             DateTime fileDate = fi.LastWriteTime;
+
+
+                            //20120612_124502.jpg
+
+                            if (regandroid.IsMatch(fi.Name))
+                            {
+                                int year = int.Parse(fi.Name.Substring(0, 4));
+                                int month = int.Parse(fi.Name.Substring(3, 2));
+                                int day = int.Parse(fi.Name.Substring(5, 2));
+
+                                fileDate = new DateTime(year, month, day);
+                            }
 
                             string yearPath = Path.Combine(outDir, fileDate.Year.ToString());
                             string monthPath = Path.Combine(yearPath, fileDate.Month.ToString("00") + " - " + fileDate.ToString("MMMM"));

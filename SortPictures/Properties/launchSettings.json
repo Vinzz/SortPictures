@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SortPictures": {
+      "commandName": "Project",
+      "commandLineArgs": "\"C:\\Users\\lccb4232\\Desktop\" \"c:\\temp\\sort\""
+    }
+  }
+}
